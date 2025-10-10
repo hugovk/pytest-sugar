@@ -12,9 +12,9 @@ def get_counts(stdout):
     output = strip_colors(stdout)
 
     def _get(x):
-        m = re.search(r"\d %s" % x, output)
+        m = re.search(r"(\d+) %s" % x, output)
         if m:
-            return m.group()[0]
+            return m.group(1)
         return "n/a"
 
     return {
@@ -591,3 +591,30 @@ class TestTerminalReporter:
                 "*-*test_doctest_lineno.py*:3*",
             ]
         )
+
+    def test_flaky_rerun(self, testdir):
+        pytest.importorskip("flaky")
+        testdir.makepyfile(
+            """
+            import pytest
+            from flaky import flaky
+
+            @pytest.mark.parametrize("x", range(200))
+            def test_lots1(x):
+                assert True
+
+            @flaky
+            def test_flaky():
+                assert False
+
+            @pytest.mark.parametrize("x", range(80))
+            def test_lots2(x):
+                assert True
+            """
+        )
+        result = testdir.runpytest("--force-sugar", "--no-flaky-report")
+
+        assert result.ret == 1, result.stderr.str()
+        test_counts = get_counts(result.stdout.str())
+        assert test_counts["passed"] == "280"
+        assert test_counts["failed"] == "1"

@@ -345,6 +345,8 @@ class SugarTerminalReporter(TerminalReporter):
                 if last < block:
                     progressbar += colored(bar[last:block], last_theme, on_color)
 
+                if block >= len(bar):
+                    break
                 progressbar += colored(bar[block], theme, on_color)
                 last = block + 1
                 last_theme = theme
