@@ -454,7 +454,7 @@ class SugarTerminalReporter(TerminalReporter):
         )
 
     def pytest_runtest_logreport(self, report: TestReport) -> None:
-        global LEN_PROGRESS_BAR_SETTING, LEN_PROGRESS_BAR
+        global LEN_PROGRESS_BAR
 
         res = pytest_report_teststatus(report=report)
         assert res
