@@ -112,9 +112,13 @@ class TestTerminalReporter:
         assert_count(testdir)
 
     def test_report_header(self, testdir):
+        if int(pytest.__version__.split(".")[0]) <= 6:
+            header_arg = "startdir"
+        else:
+            header_arg = "start_path"
         testdir.makeconftest(
-            """
-            def pytest_report_header(startdir):
+            f"""
+            def pytest_report_header({header_arg}):
                 pass
             """
         )
