@@ -9,8 +9,8 @@ jobs:
       fail-fast: false # run all tests anyway
       matrix:
         include:
-          # Python 3.10 && Pytest 6.2
-          - toxenv: py310-pytest62-supported-xdist
+          # Python 3.10 && Pytest 7
+          - toxenv: py310-pytest7-supported-xdist
             python: "3.10"
 
           # Latest Python & Pytest
