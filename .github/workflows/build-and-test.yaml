@@ -1,6 +1,6 @@
 name: build
 
-on: [push, pull_request]
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   test:
@@ -14,8 +14,8 @@ jobs:
             python: 3.8
 
           # Latest Python & Pytest
-          - toxenv: py313-pytest_latest-supported-xdist
-            python: 3.13
+          - toxenv: py314-pytest_latest-supported-xdist
+            python: 3.14
 
           # QA
           - toxenv: qa
