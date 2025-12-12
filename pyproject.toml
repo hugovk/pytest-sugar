@@ -22,8 +22,8 @@ Homepage = "https://github.com/Teemu/pytest-sugar"
 "Issue Tracker" = "https://github.com/Teemu/pytest-sugar/issues"
 
 [tool.poetry.dependencies]
-python = ">=3.8.1,<4.0"
-pytest = ">=6.2.0"
+python = ">=3.10,<4.0"
+pytest = ">=7"
 termcolor = ">=2.1.0"
 
 [tool.poetry.dev-dependencies]
