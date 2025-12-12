@@ -26,7 +26,7 @@ setup(
         " look and feel of pytest (e.g. progressbar, show tests that"
         " fail instantly)."
     ),
-    long_description=codecs.open("README.md", encoding="utf-8").read(),
+    long_description=open("README.md", encoding="utf-8").read(),
     long_description_content_type="text/markdown",
     version=get_version("pytest_sugar.py"),
     url="https://github.com/Teemu/pytest-sugar",
@@ -60,8 +60,6 @@ setup(
         "Topic :: Software Development :: Libraries",
         "Topic :: Utilities",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",

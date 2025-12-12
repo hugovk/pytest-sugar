@@ -93,7 +93,7 @@ For long-running tests, display minutes and not only seconds.
 
 You will need the following prerequisites in order to use pytest-sugar:
 
-- Python 3.8 or newer
+- Python 3.10 or newer
 - pytest 6.2 or newer
 
 ## Running on Windows

@@ -15,8 +15,9 @@ import os
 import re
 import sys
 import time
+from collections.abc import Generator, Sequence
 from configparser import ConfigParser  # type: ignore
-from typing import Any, Dict, Generator, List, Optional, Sequence, TextIO, Tuple, Union
+from typing import Any, TextIO
 
 import pytest
 from _pytest.config import Config
@@ -32,23 +33,23 @@ __version__ = "1.1.1"
 LEN_RIGHT_MARGIN = 0
 LEN_PROGRESS_PERCENTAGE = 5
 LEN_PROGRESS_BAR_SETTING = "10"
-LEN_PROGRESS_BAR: Optional[int] = None
+LEN_PROGRESS_BAR: int | None = None
 
 
 @dataclasses.dataclass
 class Theme:
-    header: Optional[str] = "magenta"
-    skipped: Optional[str] = "blue"
-    success: Optional[str] = "green"
-    warning: Optional[str] = "yellow"
-    fail: Optional[str] = "red"
-    error: Optional[str] = "red"
-    xfailed: Optional[str] = "green"
-    xpassed: Optional[str] = "red"
-    progressbar: Optional[str] = "green"
-    progressbar_fail: Optional[str] = "red"
-    progressbar_background: Optional[str] = "grey"
-    path: Optional[str] = "cyan"
+    header: str | None = "magenta"
+    skipped: str | None = "blue"
+    success: str | None = "green"
+    warning: str | None = "yellow"
+    fail: str | None = "red"
+    error: str | None = "red"
+    xfailed: str | None = "green"
+    xpassed: str | None = "red"
+    progressbar: str | None = "green"
+    progressbar_fail: str | None = "red"
+    progressbar_background: str | None = "grey"
+    path: str | None = "cyan"
     name = None
     symbol_passed: str = "✓"
     symbol_skipped: str = "s"
@@ -57,16 +58,16 @@ class Theme:
     symbol_xfailed_skipped: str = "x"
     symbol_xfailed_failed: str = "X"
     symbol_unknown: str = "?"
-    unknown: Optional[str] = "blue"
-    symbol_rerun: Optional[str] = "R"
-    rerun: Optional[str] = "blue"
+    unknown: str | None = "blue"
+    symbol_rerun: str | None = "R"
+    rerun: str | None = "blue"
 
     def __getitem__(self, x):
         return getattr(self, x)
 
 
 THEME: Theme = Theme()
-PROGRESS_BAR_BLOCKS: List[str] = [
+PROGRESS_BAR_BLOCKS: list[str] = [
     " ",
     "▏",
     "▎",
@@ -155,8 +156,8 @@ def pytest_sessionstart(session: Session) -> None:
     config = ConfigParser()
     config.read(["pytest-sugar.conf", os.path.expanduser("~/.pytest-sugar.conf")])
 
-    theme_attributes: Dict[str, Optional[str]] = {}
-    fields: Tuple[dataclasses.Field, ...] = dataclasses.fields(Theme)
+    theme_attributes: dict[str, str | None] = {}
+    fields: tuple[dataclasses.Field, ...] = dataclasses.fields(Theme)
 
     for field in fields:
         key = field.name
@@ -164,7 +165,7 @@ def pytest_sessionstart(session: Session) -> None:
             continue
 
         value_str: str = config.get("theme", key).lower()
-        value: Optional[str] = value_str
+        value: str | None = value_str
         if value in ("", "none"):
             value = None
 
@@ -212,7 +213,7 @@ def pytest_configure(config) -> None:
         config.pluginmanager.register(sugar_reporter, "terminalreporter")
 
 
-def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str]]:
+def pytest_report_teststatus(report: BaseReport) -> tuple[str, str, str] | None:
     if not IS_SUGAR_ENABLED:
         return None
 
@@ -247,7 +248,7 @@ def pytest_report_teststatus(report: BaseReport) -> Optional[Tuple[str, str, str
 
 
 class SugarTerminalReporter(TerminalReporter):
-    def __init__(self, config: Config, file: Union[TextIO, None] = None) -> None:
+    def __init__(self, config: Config, file: TextIO | None = None) -> None:
         TerminalReporter.__init__(self, config, file)
         self.paths_left = []
         self.tests_count = 0
@@ -301,7 +302,7 @@ class SugarTerminalReporter(TerminalReporter):
     def write_fspath_result(self, nodeid: str, res, **markup: bool) -> None:
         return
 
-    def insert_progress(self, report: Union[CollectReport, TestReport]) -> None:
+    def insert_progress(self, report: CollectReport | TestReport) -> None:
         def get_progress_bar() -> str:
             length = LEN_PROGRESS_BAR
             if not length:
@@ -397,7 +398,7 @@ class SugarTerminalReporter(TerminalReporter):
         )
 
     def begin_new_line(
-        self, report: Union[CollectReport, TestReport], print_filename: bool
+        self, report: CollectReport | TestReport, print_filename: bool
     ) -> None:
         path = self.report_key(report)
         self.current_line_num += 1
@@ -435,7 +436,7 @@ class SugarTerminalReporter(TerminalReporter):
         self.write("\r\n")
 
     def reached_last_column_for_test_status(
-        self, report: Union[CollectReport, TestReport]
+        self, report: CollectReport | TestReport
     ) -> bool:
         len_line = real_string_length(self.current_lines[self.report_key(report)])
         return len_line >= self.get_max_column_for_test_status()
@@ -450,7 +451,7 @@ class SugarTerminalReporter(TerminalReporter):
         # pytest's default progress
         pass
 
-    def report_key(self, report: Union[CollectReport, TestReport]) -> Any:
+    def report_key(self, report: CollectReport | TestReport) -> Any:
         """Returns a key to identify which line the report should write to."""
         return (
             (report.location or "") if self.showlongtestinfo else (report.fspath or "")
@@ -615,7 +616,7 @@ class SugarTerminalReporter(TerminalReporter):
                 colored("   % 5d deselected" % self.count("deselected"), THEME.warning)
             )
 
-    def _find_playwright_trace(self, report: TestReport) -> Optional[str]:
+    def _find_playwright_trace(self, report: TestReport) -> str | None:
         """
         Finds the Playwright trace file associated with a specific test report.
 
@@ -727,7 +728,7 @@ class SugarTerminalReporter(TerminalReporter):
         # show the error instantly after error has occurred.
         pass
 
-    def print_failure(self, report: Union[CollectReport, TestReport]) -> None:
+    def print_failure(self, report: CollectReport | TestReport) -> None:
         # https://github.com/Frozenball/pytest-sugar/issues/34
         if hasattr(report, "wasxfail"):
             return
